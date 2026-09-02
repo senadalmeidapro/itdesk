@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -56,7 +58,32 @@ class User extends Authenticatable implements PasskeyUser
         $initials = Str::initials($this->name, true);
 
         return Str::length($initials) > 1
-            ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
+            ? Str::substr($initials, 0, 1) . Str::substr($initials, -1)
             : $initials;
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Department::class);
+    }
+
+    public function ticketsRequested(): HasMany
+    {
+        return $this->hasMany(\App\Models\Ticket::class, 'requester_id');
+    }
+
+    public function ticketsAssigned(): HasMany
+    {
+        return $this->hasMany(\App\Models\Ticket::class, 'assigned_agent_id');
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(\App\Models\Asset::class, 'assigned_user_id');
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(\App\Models\Approval::class, 'approver_id');
     }
 }
