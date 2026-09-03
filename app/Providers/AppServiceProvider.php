@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Asset;
 use App\Models\Ticket;
+use App\Models\TicketComment;
+use App\Observers\TicketCommentObserver;
+use App\Observers\TicketObserver;
+use App\Policies\AssetPolicy;
 use App\Policies\TicketPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -28,6 +33,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         Gate::policy(Ticket::class, TicketPolicy::class);
+        Gate::policy(Asset::class, AssetPolicy::class);
+        Gate::define('manage-settings', fn (\App\Models\User $user) => $user->can('settings.manage'));
+        Ticket::observe(TicketObserver::class);
+        TicketComment::observe(TicketCommentObserver::class);
+
     }
 
     /**

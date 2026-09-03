@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $comment
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @mixin IdeHelperApproval
  */
 #[Fillable(['ticket_id', 'approver_id', 'decision', 'decided_at', 'comment'])]
 class Approval extends Model

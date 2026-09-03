@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @mixin IdeHelperAsset
  */
 #[Fillable([
     'asset_tag', 'serial_number', 'name', 'type', 'status',

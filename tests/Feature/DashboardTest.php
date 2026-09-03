@@ -2,26 +2,87 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Dashboard;
+use App\Models\SlaPolicy;
+use App\Models\Ticket;
 use App\Models\User;
+use Database\Seeders\PermissionsSeeder;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_are_redirected_to_the_login_page(): void
+    protected function setUp(): void
     {
-        $response = $this->get(route('dashboard'));
-        $response->assertRedirect(route('login'));
+        parent::setUp();
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(PermissionsSeeder::class);
     }
 
-    public function test_authenticated_users_can_visit_the_dashboard(): void
+    public function test_requester_cannot_access_dashboard(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $requester = User::factory()->create();
+        $requester->assignRole('requester');
 
-        $response = $this->get(route('dashboard'));
-        $response->assertOk();
+        $this->actingAs($requester)
+            ->get(route('dashboard'))
+            ->assertForbidden();
+    }
+
+    public function test_agent_can_access_dashboard(): void
+    {
+        $agent = User::factory()->create();
+        $agent->assignRole('agent');
+
+        $this->actingAs($agent)
+            ->get(route('dashboard'))
+            ->assertOk();
+    }
+
+    public function test_sla_compliance_rate_is_computed_correctly(): void
+    {
+        $agent = User::factory()->create();
+        $agent->assignRole('agent');
+
+        // One resolved on time, one resolved late.
+        Ticket::factory()->withStatus('resolved')->create([
+            'sla_resolution_due_at' => Carbon::now()->addHour(),
+            'resolved_at' => Carbon::now(),
+        ]);
+
+        Ticket::factory()->withStatus('resolved')->create([
+            'sla_resolution_due_at' => Carbon::now()->subHour(),
+            'resolved_at' => Carbon::now(),
+        ]);
+
+        Livewire::actingAs($agent)
+            ->test(Dashboard::class)
+            ->assertSee('50%');
+    }
+
+    public function test_currently_breached_count_excludes_resolved_tickets(): void
+    {
+        $agent = User::factory()->create();
+        $agent->assignRole('agent');
+
+        // Breached and still open.
+        Ticket::factory()->withStatus('in_progress')->create([
+            'sla_resolution_due_at' => Carbon::now()->subHour(),
+        ]);
+
+        // Would have breached, but already resolved - should not count.
+        Ticket::factory()->withStatus('resolved')->create([
+            'sla_resolution_due_at' => Carbon::now()->subHour(),
+            'resolved_at' => Carbon::now(),
+        ]);
+
+        Livewire::actingAs($agent)
+            ->test(Dashboard::class)
+            ->assertViewHas('sla', fn ($sla) => $sla['currently_breached'] === 1);
     }
 }

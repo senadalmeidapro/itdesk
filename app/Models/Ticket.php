@@ -120,6 +120,47 @@ class Ticket extends Model
         return in_array($this->type, self::APPROVAL_REQUIRED_TYPES, true);
     }
 
+    /**
+     * Resolve and apply the appropriate SLA policy for this ticket,
+     * computing response/resolution due dates from the ticket's
+     * creation time. Call this once, right after creation.
+     */
+    public function applySlaPolicy(): void
+    {
+        $policy = SlaPolicy::resolveFor($this);
+
+        if (! $policy) {
+            return;
+        }
+
+        $this->sla_policy_id = $policy->id;
+        $this->sla_response_due_at = $this->created_at->copy()->addMinutes($policy->response_time_minutes);
+        $this->sla_resolution_due_at = $this->created_at->copy()->addMinutes($policy->resolution_time_minutes);
+        $this->save();
+    }
+
+    /**
+     * True if the resolution due date has passed and the ticket is
+     * still open (not resolved or closed).
+     */
+    public function isResolutionBreached(): bool
+    {
+        return $this->sla_resolution_due_at
+            && $this->sla_resolution_due_at->isPast()
+            && ! in_array($this->status, ['resolved', 'closed'], true);
+    }
+
+    /**
+     * True if the response due date has passed and the ticket hasn't
+     * moved past "open" yet (no agent has picked it up).
+     */
+    public function isResponseBreached(): bool
+    {
+        return $this->sla_response_due_at
+            && $this->sla_response_due_at->isPast()
+            && $this->status === 'open';
+    }
+
     // Relationships
 
     public function category(): BelongsTo
@@ -145,6 +186,11 @@ class Ticket extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(TicketComment::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class);
     }
 
     public function approvals(): HasMany

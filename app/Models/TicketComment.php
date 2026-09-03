@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_internal
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @mixin IdeHelperTicketComment
  */
 #[Fillable(['ticket_id', 'user_id', 'body', 'is_internal'])]
 class TicketComment extends Model

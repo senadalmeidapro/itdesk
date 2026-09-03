@@ -23,4 +23,22 @@ class SlaPolicy extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    /**
+     * Resolve the SLA policy that should apply to a given ticket:
+     * 1. The ticket's category default, if set.
+     * 2. Otherwise, the policy matching the ticket's priority.
+     * 3. Null if neither exists (ticket gets no SLA tracking).
+     */
+    public static function resolveFor(Ticket $ticket): ?self
+    {
+        if ($ticket->category?->default_sla_policy_id) {
+            $policy = self::find($ticket->category->default_sla_policy_id);
+            if ($policy) {
+                return $policy;
+            }
+        }
+
+        return self::where('priority', $ticket->priority)->first();
+    }
 }

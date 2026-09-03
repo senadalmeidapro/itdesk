@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @mixin IdeHelperSoftwareLicense
  */
 #[Fillable([
     'name', 'vendor', 'license_key', 'seats_total', 'seats_used',
