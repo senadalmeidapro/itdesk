@@ -28,6 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->favicon(fn (): string => asset('favicon.svg'))
+            ->brandLogo(fn (): string => asset('favicon.svg'))
             ->brandName('TAKTIC')
             ->colors([
                 'primary' => Color::Indigo,
