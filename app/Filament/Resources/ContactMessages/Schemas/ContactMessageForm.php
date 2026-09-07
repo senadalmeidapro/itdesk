@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ContactMessages\Schemas;
 
+use App\Models\ContactMessage;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -29,9 +30,22 @@ class ContactMessageForm
                     ->label('Audience')
                     ->options([
                         'particulier' => 'Particulier',
-                        'professionnel' => 'Professionnel',
+                        'entreprise' => 'Entreprise',
                     ])
                     ->required(),
+                Select::make('service_slug')
+                    ->label('Service concerné')
+                    ->options(fn (): array => collect(config('public-services.services'))
+                        ->pluck('name', 'slug')
+                        ->all())
+                    ->searchable()
+                    ->placeholder('Non précisé'),
+                Select::make('status')
+                    ->label('Statut')
+                    ->options(ContactMessage::STATUSES)
+                    ->default(ContactMessage::STATUS_NEW)
+                    ->required()
+                    ->columnSpanFull(),
                 TextInput::make('subject')
                     ->label('Sujet')
                     ->required(),

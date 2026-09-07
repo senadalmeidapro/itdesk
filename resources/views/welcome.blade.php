@@ -112,7 +112,7 @@
             </div>
 
             <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'maintenance-depannage') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-brand-600 text-white shadow-md shadow-brand-600/25">
                         <x-icon-wrench />
                     </span>
@@ -122,7 +122,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'reseaux-connectivite') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-flow-600 text-white shadow-md shadow-flow-600/25">
                         <x-icon-server />
                     </span>
@@ -132,7 +132,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'support-helpdesk') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-brand-600 text-white shadow-md shadow-brand-600/25">
                         <x-icon-lifebuoy />
                     </span>
@@ -142,7 +142,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'vente-installation') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-flow-600 text-white shadow-md shadow-flow-600/25">
                         <x-icon-cube />
                     </span>
@@ -152,7 +152,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'sauvegarde-securite') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-brand-600 text-white shadow-md shadow-brand-600/25">
                         <x-icon-cloud />
                     </span>
@@ -162,7 +162,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('services') }}" class="surface surface-hover group p-6" wire:navigate>
+                <a href="{{ route('services.show', 'accompagnement-formation') }}" class="surface surface-hover group p-6" wire:navigate>
                     <span class="flex size-11 items-center justify-center rounded-xl bg-flow-600 text-white shadow-md shadow-flow-600/25">
                         <x-icon-book-open />
                     </span>

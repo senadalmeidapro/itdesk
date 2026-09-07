@@ -30,6 +30,27 @@ class PublicSiteTest extends TestCase
         $this->get('/services')->assertOk()->assertSee('Intervention & maintenance');
     }
 
+    public function test_service_detail_page_is_displayed(): void
+    {
+        $this->get('/services/maintenance-depannage')
+            ->assertOk()
+            ->assertSee('Votre parc, au point', false)
+            ->assertSee('Demander ce service');
+    }
+
+    public function test_service_detail_page_returns_404_for_unknown_slug(): void
+    {
+        $this->get('/services/n-existe-pas')->assertNotFound();
+    }
+
+    public function test_about_page_is_displayed(): void
+    {
+        $this->get('/a-propos')
+            ->assertOk()
+            ->assertSee('Vos systèmes, entre', false)
+            ->assertSee('de bonnes mains.', false);
+    }
+
     public function test_contact_page_is_displayed(): void
     {
         $this->get('/contact')->assertOk()->assertSee('Décrivez-nous votre besoin');
@@ -62,6 +83,29 @@ class PublicSiteTest extends TestCase
         ]);
 
         Notification::assertSentTo($admin, NewContactMessageNotification::class);
+    }
+
+    public function test_contact_form_stores_service_slug_and_status_new(): void
+    {
+        Notification::fake();
+
+        $response = $this->post('/contact', [
+            'name' => 'Marie Martin',
+            'email' => 'marie@example.com',
+            'audience' => 'particulier',
+            'service_slug' => 'reseaux-connectivite',
+            'subject' => 'Problème de réseau / Wi-Fi',
+            'message' => 'Le Wi-Fi ne couvre pas le fond de la maison, la box doit probablement être déplacée.',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('contact_messages', [
+            'email' => 'marie@example.com',
+            'service_slug' => 'reseaux-connectivite',
+            'status' => 'new',
+            'is_read' => false,
+        ]);
     }
 
     public function test_contact_form_validation(): void

@@ -70,6 +70,27 @@
                     <form method="POST" action="{{ route('contact.store') }}" class="space-y-6">
                         @csrf
 
+                        @php
+                            $fromService = collect(config('public-services.services'))->firstWhere('slug', request('service'));
+                            $subjectBySlug = [
+                                'maintenance-depannage' => 'Dépannage matériel',
+                                'reseaux-connectivite' => 'Problème de réseau / Wi-Fi',
+                                'vente-installation' => 'Installation & mise en place',
+                                'sauvegarde-securite' => 'Sauvegarde & sécurité',
+                                'support-helpdesk' => 'Support & accompagnement',
+                                'accompagnement-formation' => 'Support & accompagnement',
+                            ];
+                            $preselectedSubject = $fromService ? ($subjectBySlug[$fromService['slug']] ?? null) : null;
+                        @endphp
+
+                        @if ($fromService)
+                            <input type="hidden" name="service_slug" value="{{ $fromService['slug'] }}" />
+                            <div class="flex items-start gap-2 rounded-xl border border-brand-100 bg-brand-50 p-3.5 text-sm text-brand-800">
+                                <x-icon-check class="mt-0.5 size-4 shrink-0" />
+                                <span>Votre demande est rattachée au service « {{ $fromService['name'] }} ».</span>
+                            </div>
+                        @endif
+
                         <div>
                             <span class="mb-3 block text-sm font-medium text-zinc-700">{{ __('Vous êtes ?') }}</span>
                             <div class="grid gap-3 sm:grid-cols-2">
@@ -121,12 +142,13 @@
                         <div>
                             <label for="subject" class="mb-1.5 block text-sm font-medium text-zinc-700">{{ __('Sujet') }}</label>
                             <select id="subject" name="subject" required class="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                                <option value="Dépannage matériel" @selected(old('subject') === 'Dépannage matériel')>Dépannage matériel</option>
-                                <option value="Problème de réseau / Wi-Fi" @selected(old('subject') === 'Problème de réseau / Wi-Fi')>Problème de réseau / Wi-Fi</option>
-                                <option value="Installation & mise en place" @selected(old('subject') === 'Installation & mise en place')>Installation &amp; mise en place</option>
-                                <option value="Contrat de maintenance" @selected(old('subject') === 'Contrat de maintenance')>Contrat de maintenance</option>
-                                <option value="Sécurité & sauvegarde" @selected(old('subject') === 'Sécurité & sauvegarde')>Sécurité &amp; sauvegarde</option>
-                                <option value="Autre demande" @selected(old('subject') === 'Autre demande')>Autre demande</option>
+                                <option value="Dépannage matériel" @selected(old('subject', $preselectedSubject) === 'Dépannage matériel')>Dépannage matériel</option>
+                                <option value="Problème de réseau / Wi-Fi" @selected(old('subject', $preselectedSubject) === 'Problème de réseau / Wi-Fi')>Problème de réseau / Wi-Fi</option>
+                                <option value="Installation & mise en place" @selected(old('subject', $preselectedSubject) === 'Installation & mise en place')>Installation &amp; mise en place</option>
+                                <option value="Contrat de maintenance" @selected(old('subject', $preselectedSubject) === 'Contrat de maintenance')>Contrat de maintenance</option>
+                                <option value="Sauvegarde & sécurité" @selected(old('subject', $preselectedSubject) === 'Sauvegarde & sécurité')>Sauvegarde &amp; sécurité</option>
+                                <option value="Support & accompagnement" @selected(old('subject', $preselectedSubject) === 'Support & accompagnement')>Support &amp; accompagnement</option>
+                                <option value="Autre demande" @selected(old('subject', $preselectedSubject) === 'Autre demande')>Autre demande</option>
                             </select>
                             @error('subject')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

@@ -19,6 +19,7 @@ class ContactController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'audience' => ['required', Rule::in(['particulier', 'entreprise'])],
+            'service_slug' => ['nullable', Rule::in(array_column(config('public-services.services'), 'slug'))],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
         ]);
