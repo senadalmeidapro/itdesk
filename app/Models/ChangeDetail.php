@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $approver_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperChangeDetail
  */
 #[Fillable(['ticket_id', 'risk_level', 'scheduled_at', 'rollback_plan', 'approver_id'])]

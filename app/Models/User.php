@@ -32,14 +32,15 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperUser
  */
 #[Fillable(['name', 'email', 'password', 'department_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser, FilamentUser
+class User extends Authenticatable implements FilamentUser, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles;
+    use HasFactory, HasRoles, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -62,33 +63,33 @@ class User extends Authenticatable implements PasskeyUser, FilamentUser
         $initials = Str::initials($this->name, true);
 
         return Str::length($initials) > 1
-            ? Str::substr($initials, 0, 1) . Str::substr($initials, -1)
+            ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
     }
 
     public function department(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Department::class);
+        return $this->belongsTo(Department::class);
     }
 
     public function ticketsRequested(): HasMany
     {
-        return $this->hasMany(\App\Models\Ticket::class, 'requester_id');
+        return $this->hasMany(Ticket::class, 'requester_id');
     }
 
     public function ticketsAssigned(): HasMany
     {
-        return $this->hasMany(\App\Models\Ticket::class, 'assigned_agent_id');
+        return $this->hasMany(Ticket::class, 'assigned_agent_id');
     }
 
     public function assets(): HasMany
     {
-        return $this->hasMany(\App\Models\Asset::class, 'assigned_user_id');
+        return $this->hasMany(Asset::class, 'assigned_user_id');
     }
 
     public function approvals(): HasMany
     {
-        return $this->hasMany(\App\Models\Approval::class, 'approver_id');
+        return $this->hasMany(Approval::class, 'approver_id');
     }
 
     public function canAccessPanel(Panel $panel): bool

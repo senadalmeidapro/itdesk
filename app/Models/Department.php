@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
  * @property string $code
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperDepartment
  */
 #[Fillable(['name', 'code'])]

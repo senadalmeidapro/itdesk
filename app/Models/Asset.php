@@ -24,13 +24,14 @@ use Illuminate\Support\Carbon;
  * @property int|null $assigned_user_id
  * @property int|null $category_id
  * @property string|null $supplier
- * @property \Illuminate\Support\Carbon|null $purchase_date
- * @property \Illuminate\Support\Carbon|null $warranty_expires_at
+ * @property Carbon|null $purchase_date
+ * @property Carbon|null $warranty_expires_at
  * @property string|null $location
  * @property string|null $qr_code
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperAsset
  */
 #[Fillable([

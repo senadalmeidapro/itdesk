@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class TicketCommentedNotification extends Notification implements ShouldQueue
 {
@@ -25,7 +26,7 @@ class TicketCommentedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $ticket = $this->comment->ticket;
-        $excerpt = \Illuminate\Support\Str::limit($this->comment->body, 140);
+        $excerpt = Str::limit($this->comment->body, 140);
 
         return (new MailMessage)
             ->subject("New comment on ticket #{$ticket->id}")

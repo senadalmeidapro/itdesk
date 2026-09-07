@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 class TicketShow extends Component
@@ -18,7 +19,7 @@ class TicketShow extends Component
 
     public bool $isInternal = false;
 
-    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile[] */
+    /** @var TemporaryUploadedFile[] */
     public array $newAttachments = [];
 
     public ?int $assignAgentId = null;

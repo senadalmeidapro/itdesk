@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Ticket;
 use App\Models\User;
+use Database\Seeders\PermissionsSeeder;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +19,8 @@ class TicketAttachmentTest extends TestCase
     {
         parent::setUp();
         Storage::fake('local');
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
-        $this->seed(\Database\Seeders\PermissionsSeeder::class);
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seed(PermissionsSeeder::class);
     }
 
     public function test_attachment_is_stored_and_linked_to_ticket(): void

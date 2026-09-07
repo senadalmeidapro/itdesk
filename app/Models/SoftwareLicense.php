@@ -14,12 +14,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $license_key
  * @property int $seats_total
  * @property int $seats_used
- * @property \Illuminate\Support\Carbon|null $purchased_at
- * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property Carbon|null $purchased_at
+ * @property Carbon|null $expires_at
  * @property int|null $department_id
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperSoftwareLicense
  */
 #[Fillable([

@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $default_sla_policy_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperCategory
  */
 #[Fillable(['name', 'department_id', 'default_sla_policy_id'])]

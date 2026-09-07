@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Livewire\Dashboard;
-use App\Models\SlaPolicy;
 use App\Models\Ticket;
 use App\Models\User;
 use Database\Seeders\PermissionsSeeder;

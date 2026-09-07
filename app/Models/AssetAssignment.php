@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $unassigned_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @mixin IdeHelperAssetAssignment
  */
 #[Fillable(['asset_id', 'user_id', 'assigned_at', 'unassigned_at'])]
