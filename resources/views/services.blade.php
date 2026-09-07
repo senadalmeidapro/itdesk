@@ -44,7 +44,7 @@
                         wire:navigate
                     >
                         <div class="relative h-44 overflow-hidden bg-brand-950 text-white/40">
-                            <x-visual-scene :tone="$service['tone']" class="absolute inset-0 size-full text-white/60 transition duration-500 group-hover:scale-105" />
+                            <x-dynamic-component :component="'scene-'.$service['illustration']" :tone="$service['tone']" class="absolute inset-0 size-full text-white/60 transition duration-500 group-hover:scale-105" />
                             <span class="absolute left-4 top-4 flex size-10 items-center justify-center rounded-xl ring-1 ring-white/20 {{ $service['tone'] === 'flow' ? 'bg-cyan-500/90' : 'bg-brand-600' }}">
                                 <x-dynamic-component :component="'icon-'.$service['icon']" class="size-5 text-white" />
                             </span>

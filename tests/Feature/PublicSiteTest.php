@@ -43,6 +43,22 @@ class PublicSiteTest extends TestCase
         $this->get('/services/n-existe-pas')->assertNotFound();
     }
 
+    public function test_every_service_has_a_dedicated_illustration_and_renders(): void
+    {
+        $services = config('public-services.services');
+
+        $this->assertNotEmpty($services, 'No service in the catalog.');
+
+        foreach ($services as $service) {
+            $this->assertNotNull($service['illustration'], "Missing illustration for {$service['slug']}.");
+            $this->assertFileExists(resource_path("views/components/scene-{$service['illustration']}.blade.php"));
+
+            $this->get(route('services.show', $service['slug']))
+                ->assertOk()
+                ->assertSee(explode("'", $service['headline'])[0], false);
+        }
+    }
+
     public function test_about_page_is_displayed(): void
     {
         $this->get('/a-propos')

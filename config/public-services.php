@@ -5,8 +5,9 @@
  *
  * Chaque entrée alimente la page index (/services) et la page dédiée
  * (/services/{slug}). La clé `icon` fait référence à un composant
- * resources/views/components/icon-*.blade.php. La clé `tone` alterne
- * l'accentuation visuelle brand (indigo) / flow (cyan).
+ * resources/views/components/icon-*.blade.php. La clé `illustration`
+ * fait référence à une illustration dédiée (resources/views/components/scene-*.blade.php).
+ * La clé `tone` alterne l'accentuation visuelle brand (indigo) / flow (cyan).
  */
 
 return [
@@ -20,6 +21,7 @@ return [
             'headline' => 'Votre parc, au point, toute l\'année.',
             'description' => 'De la panne du matin au plan d\'entretien préventif, nous prenons en charge le quotidien de vos équipements informatiques. Diagnostic, réparation, remplacement de composants et mises à jour : votre matériel est suivi, donc fiable.',
             'icon' => 'wrench',
+            'illustration' => 'maintenance',
             'tone' => 'brand',
             'metrics' => [
                 ['value' => '24 h', 'label' => 'délai moyen d\'intervention'],
@@ -43,6 +45,7 @@ return [
             'headline' => 'Un réseau stable et rapide, du salon au serveur.',
             'description' => 'Connexions qui sautent, zones sans Wi-Fi, lenteurs : nous concevons, installons et supervisons votre réseau pour que tout le monde reste connecté, en toute sécurité, chez vous comme au bureau.',
             'icon' => 'server',
+            'illustration' => 'reseaux',
             'tone' => 'flow',
             'metrics' => [
                 ['value' => '100 %', 'label' => 'des locaux couverts en Wi-Fi'],
@@ -66,6 +69,7 @@ return [
             'headline' => 'Une question ? Une équipe, un suivi en ligne.',
             'description' => 'Incident bloquant ou simple question sur un logiciel : notre helpdesk répond et suit chaque demande dans un espace en ligne. Vous savez toujours où en est votre dossier, et qui s\'en occupe.',
             'icon' => 'lifebuoy',
+            'illustration' => 'helpdesk',
             'tone' => 'brand',
             'metrics' => [
                 ['value' => '1 h 45', 'label' => 'de temps de réponse moyen'],
@@ -89,6 +93,7 @@ return [
             'headline' => 'Du conseil à l\'installation, sans fausse note.',
             'description' => 'Besoin d\'un ordinateur, d\'un serveur ou de périphériques ? Nous sélectionnons du matériel adapté à votre usage et à votre budget, nous l\'installons, et nous recyclons votre ancien équipement.',
             'icon' => 'cube',
+            'illustration' => 'vente',
             'tone' => 'flow',
             'metrics' => [
                 ['value' => 'Aucun', 'label' => 'surcoût caché, devis ferme'],
@@ -112,6 +117,7 @@ return [
             'headline' => 'Vos données dorment tranquilles, vous aussi.',
             'description' => 'Perte de fichiers, ransomware, panne de disque : nous mettons en place des sauvegardes automatisées et une protection complète de vos postes et de vos comptes, avec un plan de reprise si le pire arrive.',
             'icon' => 'cloud',
+            'illustration' => 'securite',
             'tone' => 'brand',
             'metrics' => [
                 ['value' => '3-2-1', 'label' => 'règle de sauvegarde appliquée'],
@@ -135,6 +141,7 @@ return [
             'headline' => 'Le numérique, sans appréhension.',
             'description' => 'De la prise en main d\'un nouvel outil à la formation d\'une équipe, nous vous accompagnons pour que l\'informatique devienne un allié du quotidien — pas une corvée.',
             'icon' => 'book-open',
+            'illustration' => 'formation',
             'tone' => 'flow',
             'metrics' => [
                 ['value' => '1:1', 'label' => 'ou en petit groupe'],

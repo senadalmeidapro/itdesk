@@ -37,7 +37,7 @@
             </div>
 
             <div class="relative">
-                <x-visual-scene :tone="$service['tone']" class="w-full text-white/50" />
+                <x-dynamic-component :component="'scene-'.$service['illustration']" :tone="$service['tone']" class="w-full text-white/50" />
                 {{-- Pastille du service --}}
                 <div class="absolute -bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-white/10 bg-brand-900/90 px-5 py-3.5 shadow-xl backdrop-blur">
                     <span class="flex size-9 items-center justify-center rounded-lg {{ $service['tone'] === 'flow' ? 'bg-cyan-500' : 'bg-brand-600' }}">
