@@ -42,7 +42,7 @@ class TicketAttachmentTest extends TestCase
 
         Storage::disk('local')->assertExists($path);
         $this->assertSame($ticket->id, $attachment->ticket_id);
-        $this->assertSame('500.0 KB', $attachment->humanSize());
+        $this->assertSame('500 KB', $attachment->humanSize());
     }
 
     public function test_deleting_attachment_removes_the_file(): void

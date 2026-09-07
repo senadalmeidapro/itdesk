@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\TicketAttachment;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TicketAttachmentDownloadController extends Controller
 {
-    public function __invoke(TicketAttachment $attachment): Response
+    public function __invoke(TicketAttachment $attachment): StreamedResponse
     {
         $this->authorize('view', $attachment->ticket);
 

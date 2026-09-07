@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Tickets;
 
+use App\Models\Asset;
+use App\Models\Category;
 use App\Models\ChangeDetail;
 use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
@@ -103,6 +105,13 @@ class TicketCreate extends Component
 
     public function render(): View
     {
-        return view('livewire.tickets.create');
+        return view('livewire.tickets.create', [
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'assets' => Asset::orderBy('name')->get(['id', 'name', 'asset_tag']),
+            'incidents' => Ticket::query()
+                ->where('type', 'incident')
+                ->orderByDesc('id')
+                ->get(['id', 'title']),
+        ]);
     }
 }

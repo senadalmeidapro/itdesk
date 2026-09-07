@@ -3,6 +3,7 @@
 namespace App\Livewire\Assets;
 
 use App\Models\Asset;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -90,6 +91,7 @@ class AssetCreate extends Component
     {
         return view('livewire.assets.create', [
             'users' => User::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
 }

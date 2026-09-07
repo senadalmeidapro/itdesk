@@ -1,72 +1,87 @@
 <div>
-    <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl font-semibold">Assets</h1>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Équipements</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Parc informatique, réseau et infogérance.</p>
+        </div>
         @can('create', \App\Models\Asset::class)
-            <a href="{{ route('assets.create') }}" class="btn btn-primary">New asset</a>
+            <a href="{{ route('assets.create') }}" wire:navigate class="btn btn-primary">
+                <x-icon-plus class="size-4" /> Nouvel équipement
+            </a>
         @endcan
     </div>
 
-    <div class="flex gap-3 mb-4">
-        <input
-            type="text"
-            wire:model.live.debounce.300ms="search"
-            placeholder="Search tag, name, serial..."
-            class="border rounded px-2 py-1 flex-1"
-        >
+    <div class="mt-6 grid gap-3 md:grid-cols-3">
+        <div class="relative">
+            <x-icon-magnifying-glass class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400" />
+            <input
+                type="text"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Rechercher (tag, nom, série, IP…)"
+                class="input !pl-9"
+            >
+        </div>
 
-        <select wire:model.live="type" class="border rounded px-2 py-1">
-            <option value="">All types</option>
-            <option value="laptop">Laptop</option>
-            <option value="desktop">Desktop</option>
-            <option value="cpu">CPU</option>
-            <option value="monitor">Monitor</option>
-            <option value="hard_disk">Hard disk</option>
-            <option value="keyboard">Keyboard</option>
-            <option value="mouse">Mouse</option>
-            <option value="printer">Printer</option>
-            <option value="switch">Switch</option>
-            <option value="router">Router</option>
-            <option value="camera">Camera</option>
-            <option value="other">Other</option>
+        <select wire:model.live="type" class="input">
+            <option value="">Tous les types</option>
+            @foreach (['laptop', 'desktop', 'cpu', 'monitor', 'hard_disk', 'keyboard', 'mouse', 'printer', 'switch', 'router', 'camera', 'other'] as $type)
+                <option value="{{ $type }}">{{ str_replace('_', ' ', ucfirst($type)) }}</option>
+            @endforeach
         </select>
 
-        <select wire:model.live="status" class="border rounded px-2 py-1">
-            <option value="">All statuses</option>
-            <option value="in_use">In use</option>
-            <option value="in_stock">In stock</option>
-            <option value="retired">Retired</option>
-            <option value="repair">Repair</option>
+        <select wire:model.live="status" class="input">
+            <option value="">Tous les statuts</option>
+            <option value="in_use">En usage</option>
+            <option value="in_stock">En stock</option>
+            <option value="repair">En réparation</option>
+            <option value="retired">Retiré</option>
         </select>
     </div>
 
-    <table class="w-full border-collapse">
-        <thead>
-            <tr class="text-left border-b">
-                <th class="py-2">Tag</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Assigned to</th>
-                <th>Location</th>
-                <th>Tickets</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($assets as $asset)
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="py-2">
-                        <a href="{{ route('assets.show', $asset) }}" wire:navigate>{{ $asset->asset_tag }}</a>
-                    </td>
-                    <td>{{ $asset->name }}</td>
-                    <td>{{ str_replace('_', ' ', $asset->type) }}</td>
-                    <td><span class="badge">{{ str_replace('_', ' ', $asset->status) }}</span></td>
-                    <td>{{ $asset->assignedUser?->name ?? '—' }}</td>
-                    <td>{{ $asset->location ?? '—' }}</td>
-                    <td>{{ $asset->tickets_count }}</td>
+    <div class="surface mt-4 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-zinc-200 bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900">
+                    <th class="px-5 py-3">Tag</th>
+                    <th class="px-5 py-3">Nom</th>
+                    <th class="px-5 py-3">Type</th>
+                    <th class="px-5 py-3">Statut</th>
+                    <th class="px-5 py-3">Assigné à</th>
+                    <th class="px-5 py-3">Emplacement</th>
+                    <th class="px-5 py-3 text-right">Tickets</th>
+                    <th class="px-5 py-3"></th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($assets as $asset)
+                    <tr class="border-b border-zinc-100 last:border-0 hover:bg-brand-50/40 dark:border-zinc-800 dark:hover:bg-brand-950/20">
+                        <td class="px-5 py-3">
+                            <a href="{{ route('assets.show', $asset) }}" wire:navigate class="font-semibold text-brand-600 hover:text-brand-700">
+                                {{ $asset->asset_tag }}
+                            </a>
+                        </td>
+                        <td class="px-5 py-3 text-zinc-800 dark:text-zinc-200">{{ $asset->name }}</td>
+                        <td class="px-5 py-3 capitalize text-zinc-600 dark:text-zinc-400">{{ str_replace('_', ' ', $asset->type) }}</td>
+                        <td class="px-5 py-3"><x-status-pill :status="$asset->status" /></td>
+                        <td class="px-5 py-3 text-zinc-600 dark:text-zinc-400">{{ $asset->assignedUser?->name ?? '—' }}</td>
+                        <td class="px-5 py-3 text-zinc-600 dark:text-zinc-400">{{ $asset->location ?? '—' }}</td>
+                        <td class="px-5 py-3 text-right text-zinc-600 dark:text-zinc-400">{{ $asset->tickets_count }}</td>
+                        <td class="px-5 py-3 text-right whitespace-nowrap">
+                            @can('update', $asset)
+                                <a href="{{ route('assets.edit', $asset) }}" wire:navigate class="text-sm font-medium text-brand-600 hover:text-brand-700">
+                                    Modifier
+                                </a>
+                            @endcan
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="px-5 py-10 text-center text-zinc-400">Aucun équipement ne correspond à votre recherche.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
     <div class="mt-4">
         {{ $assets->links() }}

@@ -1,117 +1,138 @@
-<div class="max-w-2xl">
-    <h1 class="text-xl font-semibold mb-4">New asset</h1>
+<div class="max-w-3xl">
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Nouvel équipement</h1>
+        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Enregistrez un poste, un périphérique ou un équipement réseau.</p>
+    </div>
 
-    <form wire:submit="save" class="space-y-4">
-        <div class="flex gap-4">
-            <div class="flex-1">
-                <label class="block font-medium">Asset tag</label>
-                <input type="text" wire:model="asset_tag" class="w-full border rounded px-2 py-1">
-                @error('asset_tag') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+    <form wire:submit="save" class="surface mt-6 space-y-6 p-8">
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Tag d'inventaire</label>
+                <input type="text" wire:model="asset_tag" class="input" placeholder="IT-0001">
+                @error('asset_tag') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
-            <div class="flex-1">
-                <label class="block font-medium">Serial number</label>
-                <input type="text" wire:model="serial_number" class="w-full border rounded px-2 py-1">
-                @error('serial_number') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            <div>
+                <label class="label">Numéro de série</label>
+                <input type="text" wire:model="serial_number" class="input">
+                @error('serial_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
         </div>
 
         <div>
-            <label class="block font-medium">Name</label>
-            <input type="text" wire:model="name" class="w-full border rounded px-2 py-1">
-            @error('name') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            <label class="label">Nom</label>
+            <input type="text" wire:model="name" class="input" placeholder="PC réception — Julie">
+            @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
 
-        <div class="flex gap-4">
+        <div class="grid gap-5 sm:grid-cols-2">
             <div>
-                <label class="block font-medium">Type</label>
-                <select wire:model="type" class="border rounded px-2 py-1">
-                    <option value="laptop">Laptop</option>
-                    <option value="desktop">Desktop</option>
-                    <option value="cpu">CPU</option>
-                    <option value="monitor">Monitor</option>
-                    <option value="hard_disk">Hard disk</option>
-                    <option value="keyboard">Keyboard</option>
-                    <option value="mouse">Mouse</option>
-                    <option value="printer">Printer</option>
+                <label class="label">Type</label>
+                <select wire:model="type" class="input">
+                    <option value="laptop">Portable</option>
+                    <option value="desktop">Bureau</option>
+                    <option value="cpu">Unité centrale</option>
+                    <option value="monitor">Écran</option>
+                    <option value="hard_disk">Disque dur</option>
+                    <option value="keyboard">Clavier</option>
+                    <option value="mouse">Souris</option>
+                    <option value="printer">Imprimante</option>
                     <option value="switch">Switch</option>
-                    <option value="router">Router</option>
-                    <option value="camera">Camera</option>
-                    <option value="other">Other</option>
+                    <option value="router">Routeur</option>
+                    <option value="camera">Caméra</option>
+                    <option value="other">Autre</option>
                 </select>
             </div>
 
             <div>
-                <label class="block font-medium">Status</label>
-                <select wire:model="status" class="border rounded px-2 py-1">
-                    <option value="in_stock">In stock</option>
-                    <option value="in_use">In use</option>
-                    <option value="repair">Repair</option>
-                    <option value="retired">Retired</option>
+                <label class="label">Statut</label>
+                <select wire:model="status" class="input">
+                    <option value="in_stock">En stock</option>
+                    <option value="in_use">En usage</option>
+                    <option value="repair">En réparation</option>
+                    <option value="retired">Retiré</option>
                 </select>
             </div>
         </div>
 
-        <div class="flex gap-4">
-            <div class="flex-1">
-                <label class="block font-medium">Manufacturer</label>
-                <input type="text" wire:model="manufacturer" class="w-full border rounded px-2 py-1">
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Fabricant</label>
+                <input type="text" wire:model="manufacturer" class="input" placeholder="Lenovo, Dell…">
             </div>
-            <div class="flex-1">
-                <label class="block font-medium">Model</label>
-                <input type="text" wire:model="model" class="w-full border rounded px-2 py-1">
+            <div>
+                <label class="label">Modèle</label>
+                <input type="text" wire:model="model" class="input">
             </div>
         </div>
 
-        <div class="flex gap-4">
-            <div class="flex-1">
-                <label class="block font-medium">IP address</label>
-                <input type="text" wire:model="ip_address" class="w-full border rounded px-2 py-1">
-                @error('ip_address') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Adresse IP</label>
+                <input type="text" wire:model="ip_address" class="input" placeholder="192.168.1.10">
+                @error('ip_address') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
-            <div class="flex-1">
-                <label class="block font-medium">MAC address</label>
-                <input type="text" wire:model="mac_address" placeholder="00:1A:2B:3C:4D:5E" class="w-full border rounded px-2 py-1">
-                @error('mac_address') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            <div>
+                <label class="label">Adresse MAC</label>
+                <input type="text" wire:model="mac_address" placeholder="00:1A:2B:3C:4D:5E" class="input">
+                @error('mac_address') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Catégorie</label>
+                <select wire:model="category_id" class="input">
+                    <option value="">Aucune catégorie</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="label">Assigné à</label>
+                <select wire:model="assigned_user_id" class="input">
+                    <option value="">Non assigné</option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Date d'achat</label>
+                <input type="date" wire:model="purchase_date" class="input">
+            </div>
+            <div>
+                <label class="label">Fin de garantie</label>
+                <input type="date" wire:model="warranty_expires_at" class="input">
+                @error('warranty_expires_at') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label class="label">Fournisseur</label>
+                <input type="text" wire:model="supplier" class="input">
+            </div>
+            <div>
+                <label class="label">Emplacement</label>
+                <input type="text" wire:model="location" class="input" placeholder="Salle serveurs, Bureau 2…">
             </div>
         </div>
 
         <div>
-            <label class="block font-medium">Assign to</label>
-            <select wire:model="assigned_user_id" class="border rounded px-2 py-1">
-                <option value="">Unassigned</option>
-                @foreach ($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                @endforeach
-            </select>
+            <label class="label">Notes</label>
+            <textarea wire:model="notes" rows="3" class="input"></textarea>
         </div>
 
-        <div class="flex gap-4">
-            <div class="flex-1">
-                <label class="block font-medium">Purchase date</label>
-                <input type="date" wire:model="purchase_date" class="w-full border rounded px-2 py-1">
-            </div>
-            <div class="flex-1">
-                <label class="block font-medium">Warranty expires</label>
-                <input type="date" wire:model="warranty_expires_at" class="w-full border rounded px-2 py-1">
-                @error('warranty_expires_at') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
-            </div>
+        <div class="flex items-center gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
+            <button type="submit" class="btn btn-primary">
+                <x-icon-plus class="size-4" /> Créer l'équipement
+            </button>
+            <a href="{{ route('assets.index') }}" wire:navigate class="btn btn-ghost">Annuler</a>
         </div>
-
-        <div>
-            <label class="block font-medium">Supplier</label>
-            <input type="text" wire:model="supplier" class="w-full border rounded px-2 py-1">
-        </div>
-
-        <div>
-            <label class="block font-medium">Location</label>
-            <input type="text" wire:model="location" class="w-full border rounded px-2 py-1">
-        </div>
-
-        <div>
-            <label class="block font-medium">Notes</label>
-            <textarea wire:model="notes" rows="3" class="w-full border rounded px-2 py-1"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create asset</button>
     </form>
 </div>

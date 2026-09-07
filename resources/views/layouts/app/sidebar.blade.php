@@ -16,19 +16,40 @@
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Tickets')" class="grid">
+                    <flux:sidebar.item icon="list-bullet" :href="route('tickets.index')" :current="request()->routeIs('tickets.index')" wire:navigate>
+                        {{ __('All tickets') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="plus" :href="route('tickets.create')" :current="request()->routeIs('tickets.create')" wire:navigate>
+                        {{ __('New ticket') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Assets')" class="grid">
+                    <flux:sidebar.item icon="computer-desktop" :href="route('assets.index')" :current="request()->routeIs('assets.index')" wire:navigate>
+                        {{ __('All assets') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="user-circle" :href="route('assets.mine')" :current="request()->routeIs('assets.mine')" wire:navigate>
+                        {{ __('My assets') }}
+                    </flux:sidebar.item>
+                    @can('create', App\Models\Asset::class)
+                        <flux:sidebar.item icon="plus" :href="route('assets.create')" :current="request()->routeIs('assets.create')" wire:navigate>
+                            {{ __('New asset') }}
+                        </flux:sidebar.item>
+                    @endcan
+                </flux:sidebar.group>
+
+                @if (auth()->user()->canAccessPanel(\Filament\Facades\Filament::getPanel('admin')))
+                    <flux:sidebar.group :heading="__('Administration')" class="grid">
+                        <flux:sidebar.item icon="shield-check" href="{{ url('/admin') }}">
+                            {{ __('Back-office') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>

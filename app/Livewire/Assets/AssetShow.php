@@ -38,6 +38,19 @@ class AssetShow extends Component
         session()->flash('success', "Asset reassigned to {$user->name}.");
     }
 
+    public function delete(): void
+    {
+        $this->authorize('delete', $this->asset);
+
+        $tag = $this->asset->asset_tag;
+
+        $this->asset->delete();
+
+        session()->flash('success', "Asset {$tag} deleted.");
+
+        $this->redirectRoute('assets.index');
+    }
+
     public function render(): View
     {
         $this->asset->load(['assignedUser', 'category', 'tickets', 'assignments' => function ($q) {

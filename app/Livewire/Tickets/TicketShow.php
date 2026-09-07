@@ -54,6 +54,55 @@ class TicketShow extends Component
         session()->flash('success', "Ticket moved to '{$status}'.");
     }
 
+    public function delete(): void
+    {
+        $this->authorize('delete', $this->ticket);
+
+        $ticketId = $this->ticket->id;
+
+        $this->ticket->delete();
+
+        session()->flash('success', "Ticket #{$ticketId} deleted.");
+
+        $this->redirectRoute('tickets.index');
+    }
+
+    public function approve(?string $comment = null): void
+    {
+        $this->authorize('approve', $this->ticket);
+
+        $this->ticket->approvals()->create([
+            'approver_id' => auth()->id(),
+            'decision' => 'pending',
+            'comment' => $comment,
+        ]);
+
+        $approval = $this->ticket->approvals()->latest('id')->first();
+        $approval->approve($comment);
+
+        $this->ticket->refresh();
+
+        session()->flash('success', 'Ticket approved.');
+    }
+
+    public function reject(?string $comment = null): void
+    {
+        $this->authorize('approve', $this->ticket);
+
+        $this->ticket->approvals()->create([
+            'approver_id' => auth()->id(),
+            'decision' => 'pending',
+            'comment' => $comment,
+        ]);
+
+        $approval = $this->ticket->approvals()->latest('id')->first();
+        $approval->reject($comment);
+
+        $this->ticket->refresh();
+
+        session()->flash('success', 'Ticket rejected and closed.');
+    }
+
     /**
      * Assign (or reassign) the ticket to an agent. Same permission as
      * transitioning status - only staff can do this.

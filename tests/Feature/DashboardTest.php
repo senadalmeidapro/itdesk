@@ -23,14 +23,15 @@ class DashboardTest extends TestCase
         $this->seed(PermissionsSeeder::class);
     }
 
-    public function test_requester_cannot_access_dashboard(): void
+    public function test_requester_can_access_personal_dashboard(): void
     {
         $requester = User::factory()->create();
         $requester->assignRole('requester');
 
         $this->actingAs($requester)
             ->get(route('dashboard'))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertSee('Nouvelle demande');
     }
 
     public function test_agent_can_access_dashboard(): void

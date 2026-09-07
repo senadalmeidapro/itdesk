@@ -12,7 +12,62 @@ class Dashboard extends Component
 {
     public function mount(): void
     {
-        abort_unless(auth()->user()->can('tickets.view_all'), 403);
+        //
+    }
+
+    public function render(): View
+    {
+        $user = auth()->user();
+
+        if ($user->can('tickets.view_all')) {
+            return $this->renderStaff();
+        }
+
+        return $this->renderRequester();
+    }
+
+    /**
+     * Personal dashboard for requesters: shows their own tickets,
+     * assigned assets, and pending approvals they may need to review.
+     */
+    protected function renderRequester(): View
+    {
+        $myTickets = Ticket::query()
+            ->where('requester_id', auth()->id())
+            ->with(['category', 'assignedAgent'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        $myPendingApprovals = Ticket::query()
+            ->where('status', 'pending_approval')
+            ->whereHas('approvals', fn ($q) => $q->where('decision', 'pending'))
+            ->count();
+
+        $openTickets = $myTickets->whereNotIn('status', ['resolved', 'closed'])->count();
+
+        return view('livewire.dashboard-requester', [
+            'myTickets' => $myTickets,
+            'myAssets' => auth()->user()->assets()->latest()->limit(10)->get(),
+            'openTicketsCount' => $openTickets,
+            'pendingApprovalsCount' => $myPendingApprovals,
+        ]);
+    }
+
+    protected function renderStaff(): View
+    {
+        $dailyVolume = $this->dailyVolume();
+        $maxDaily = max(1, max($dailyVolume));
+
+        return view('livewire.dashboard', [
+            'statusCounts' => $this->statusCounts(),
+            'priorityCounts' => $this->priorityCounts(),
+            'sla' => $this->slaCompliance(),
+            'avgResolutionHours' => $this->averageResolutionHours(),
+            'dailyVolume' => $dailyVolume,
+            'maxDaily' => $maxDaily,
+            'topCategories' => $this->topCategories(),
+        ]);
     }
 
     /**
@@ -128,21 +183,5 @@ class Dashboard extends Component
             ->get()
             ->map(fn ($c) => ['name' => $c->name, 'count' => $c->tickets_count])
             ->toArray();
-    }
-
-    public function render(): View
-    {
-        $dailyVolume = $this->dailyVolume();
-        $maxDaily = max(1, max($dailyVolume));
-
-        return view('livewire.dashboard', [
-            'statusCounts' => $this->statusCounts(),
-            'priorityCounts' => $this->priorityCounts(),
-            'sla' => $this->slaCompliance(),
-            'avgResolutionHours' => $this->averageResolutionHours(),
-            'dailyVolume' => $dailyVolume,
-            'maxDaily' => $maxDaily,
-            'topCategories' => $this->topCategories(),
-        ]);
     }
 }

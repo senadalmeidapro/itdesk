@@ -21,6 +21,9 @@ class TicketIndex extends Component
     #[Url]
     public string $priority = '';
 
+    #[Url]
+    public string $search = '';
+
     public function mount(): void
     {
         $this->authorize('viewAny', Ticket::class);
@@ -28,7 +31,7 @@ class TicketIndex extends Component
 
     public function updated(string $property): void
     {
-        if (in_array($property, ['status', 'type', 'priority'])) {
+        if (in_array($property, ['status', 'type', 'priority', 'search'])) {
             $this->resetPage();
         }
     }
@@ -44,6 +47,14 @@ class TicketIndex extends Component
         }
 
         $tickets = $query
+            ->when($this->search, function ($q) {
+                $term = '%'.$this->search.'%';
+                $q->where(function ($q) use ($term) {
+                    $q->where('title', 'like', $term)
+                        ->orWhere('description', 'like', $term)
+                        ->orWhere('id', 'like', $term);
+                });
+            })
             ->when($this->status, fn ($q) => $q->where('status', $this->status))
             ->when($this->type, fn ($q) => $q->where('type', $this->type))
             ->when($this->priority, fn ($q) => $q->where('priority', $this->priority))
