@@ -11,7 +11,10 @@ and a Filament back office — all in a single Laravel application.
   - `GET /services` — service catalog
   - `GET /services/{slug}` — dedicated service page (404 on unknown slug)
   - `GET /a-propos` — about page
-  - `GET|POST /contact` — lead capture form (optionally pre-framed by a service via `?service=<slug>`)
+  - `GET|POST /contact` — lead capture form; when `?service=<slug>` is present (or the
+    visitor selects a service), **service-specific fields** appear (stored in the JSON
+    column `form_data`). Schemas are defined in `config/service-form-fields.php`
+    and validated dynamically per service on submit.
 - **Service catalog** driven by `config/public-services.php` (6 services). Each entry has
   `slug`, `name`, `short`, `headline`, `description`, `icon` (`icon-*.blade.php`),
   `illustration` (`scene-*.blade.php` — one *dedicated* SVG scene per service), `tone`
@@ -72,7 +75,10 @@ simple state machine handled through the Filament back office:
 `new → contacted → converted | rejected` (see `App\Models\ContactMessage::STATUSES`).
 
 1. A visitor submits the contact form (`ContactController@store`). Fields include an optional
-   `service_slug` (validated against `config/public-services.php`), and `status` defaults to `new`.
+   `service_slug` (validated against `config/public-services.php`), per-service **custom
+   fields** (schema in `config/service-form-fields.php`, answers stored in the JSON column
+   `contact_messages.form_data`), and `status` defaults to `new`. Questions that are not part
+   of the selected service's schema are discarded on the server.
 2. Admins see the list at `/admin/contact-messages` (`ContactMessagesResource`):
    - **Marquer contacté** — stamps `contacted_at`, visible while `new`.
    - **Convertir en ticket** — opens a modal (client, category, priority, assigned agent; can
@@ -82,6 +88,19 @@ simple state machine handled through the Filament back office:
      attempt returns the existing ticket.
    - **Rejeter** — marks the lead `rejected`.
 3. The `converted` relationship links the lead to its ticket (`ContactMessage::convertedTicket()`).
+   The service-specific answers (`form_data`) appear in the back-office edit form (read-only
+   section), in the admin e-mail notification, and in the generated ticket description.
+
+### Service-specific form fields
+
+Each service may ship its own set of question fields via `config/service-form-fields.php`
+(keyed by service slug). Supported field types: `text`, `number`, `select`, `textarea`
+(see `resources/views/contact.blade.php` for rendering). Rules are built dynamically on submit:
+selects are limited to their declared options, numbers are validated as integers ≥ 1, and
+`required` fields must be filled — only for the selected service. Storing is filtered to the
+schema keys, so stray/unknown fields cannot be persisted. `ContactMessage::formAnswers()`
+resolves select values to display labels for use across the e-mail, ticket description and
+Filament.
 
 ## Domain model
 
@@ -155,10 +174,12 @@ php artisan test
 
 Feature suites include:
 - `PublicSiteTest` — public pages, catalog-driven service details, contact form + validation,
-  and a guard that every service ships its own `scene-*.blade.php` illustration.
+  service-specific `form_data` storage/validation, and a guard that every service ships its
+  own `scene-*.blade.php` illustration.
 - `LeadConversionTest` — lead converted into an `assigned` `service_request` ticket with agent
   notification, conversion **idempotency**, and contacted/rejected statuses.
-- `Admin\ContactMessageAdminTest` — back-office renders the lead table (admin only).
+- `Admin\ContactMessageAdminTest` — back-office renders the lead table (admin only) and the
+  edit form incl. the service-schema answers section.
 - `TicketTransitionTest` — full status state machine incl. the closed/resolved reopen rule.
 - `Approval`, `AssetAssignment`, policy/permission suites.
 

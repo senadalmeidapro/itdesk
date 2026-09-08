@@ -44,6 +44,36 @@ class ContactMessageAdminTest extends TestCase
             ->assertSee('Convertir en ticket');
     }
 
+    public function test_admin_can_edit_contact_message_with_form_data(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $message = ContactMessage::create([
+            'name' => 'Paul Petit',
+            'email' => 'paul@example.com',
+            'audience' => 'entreprise',
+            'service_slug' => 'maintenance-depannage',
+            'subject' => 'Dépannage matériel',
+            'message' => 'Un poste ne démarre plus depuis ce matin.',
+            'status' => ContactMessage::STATUS_NEW,
+            'form_data' => [
+                'equipment_type' => 'poste',
+                'equipment_count' => 1,
+                'intervention_mode' => 'sur_place',
+                'urgency' => 'urgente',
+            ],
+        ]);
+
+        $this->actingAs($admin)
+            ->get('/admin/contact-messages/'.$message->id.'/edit')
+            ->assertOk()
+            ->assertSee('Paul Petit')
+            ->assertSee('Réponses au formulaire de service')
+            ->assertSee(explode("'", "Nombre d'équipements concernés")[0])
+            ->assertSee(explode("'", "Degré d'urgence")[0]);
+    }
+
     public function test_non_admin_is_blocked_from_back_office(): void
     {
         $requester = User::factory()->create();

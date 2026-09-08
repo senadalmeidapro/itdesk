@@ -35,6 +35,10 @@ class NewContactMessageNotification extends Notification implements ShouldQueue
             $mail->line("Téléphone : {$this->message->phone}");
         }
 
+        foreach ($this->message->formAnswers() as $label => $value) {
+            $mail->line("{$label} : {$value}");
+        }
+
         return $mail;
     }
 }

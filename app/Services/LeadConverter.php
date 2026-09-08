@@ -71,6 +71,15 @@ class LeadConverter
             $lead->message,
         ];
 
+        $answers = $lead->formAnswers();
+        if ($answers !== []) {
+            $lines[] = '';
+            $lines[] = 'Précisions du formulaire :';
+            foreach ($answers as $label => $value) {
+                $lines[] = "- {$label} : {$value}";
+            }
+        }
+
         return implode("\n", $lines);
     }
 }

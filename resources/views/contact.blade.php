@@ -67,11 +67,12 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('contact.store') }}" class="space-y-6">
+                    <form method="POST" action="{{ route('contact.store') }}" class="space-y-6" x-data="{ service: serviceSlugInitial, subject: subjectInitial, subjectBy: subjectByService }">
                         @csrf
 
                         @php
-                            $fromService = collect(config('public-services.services'))->firstWhere('slug', request('service'));
+                            $services = config('public-services.services');
+                            $fromService = collect($services)->firstWhere('slug', request('service'));
                             $subjectBySlug = [
                                 'maintenance-depannage' => 'Dépannage matériel',
                                 'reseaux-connectivite' => 'Problème de réseau / Wi-Fi',
@@ -80,16 +81,32 @@
                                 'support-helpdesk' => 'Support & accompagnement',
                                 'accompagnement-formation' => 'Support & accompagnement',
                             ];
-                            $preselectedSubject = $fromService ? ($subjectBySlug[$fromService['slug']] ?? null) : null;
+                            $subjectByService = collect($services)->mapWithKeys(fn (array $svc): array => [
+                                $svc['slug'] => $subjectBySlug[$svc['slug']] ?? 'Autre demande',
+                            ])->all();
+                            $serviceSlug = (string) old('service_slug', $fromService['slug'] ?? '');
+                            $subjectInitial = (string) old('subject', $fromService ? ($subjectBySlug[$fromService['slug']] ?? 'Autre demande') : 'Autre demande');
                         @endphp
 
-                        @if ($fromService)
-                            <input type="hidden" name="service_slug" value="{{ $fromService['slug'] }}" />
-                            <div class="flex items-start gap-2 rounded-xl border border-brand-100 bg-brand-50 p-3.5 text-sm text-brand-800">
-                                <x-icon-check class="mt-0.5 size-4 shrink-0" />
-                                <span>Votre demande est rattachée au service « {{ $fromService['name'] }} ».</span>
-                            </div>
-                        @endif
+                        <script>
+                            const serviceSlugInitial = @js($serviceSlug);
+                            const subjectInitial = @js($subjectInitial);
+                            const subjectByService = @js($subjectByService);
+                        </script>
+
+                        {{-- Service concerné --}}
+                        <div>
+                            <label for="service_slug" class="mb-1.5 block text-sm font-medium text-zinc-700">{{ __('Service concerné') }}</label>
+                            <select id="service_slug" name="service_slug" x-model="service" @change="subject = subjectBy[service] ?? 'Autre demande'" class="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+                                <option value="">Je ne sais pas encore / autre demande</option>
+                                @foreach ($services as $svc)
+                                    <option value="{{ $svc['slug'] }}">{{ $svc['name'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('service_slug')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
                         <div>
                             <span class="mb-3 block text-sm font-medium text-zinc-700">{{ __('Vous êtes ?') }}</span>
@@ -141,19 +158,75 @@
 
                         <div>
                             <label for="subject" class="mb-1.5 block text-sm font-medium text-zinc-700">{{ __('Sujet') }}</label>
-                            <select id="subject" name="subject" required class="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                                <option value="Dépannage matériel" @selected(old('subject', $preselectedSubject) === 'Dépannage matériel')>Dépannage matériel</option>
-                                <option value="Problème de réseau / Wi-Fi" @selected(old('subject', $preselectedSubject) === 'Problème de réseau / Wi-Fi')>Problème de réseau / Wi-Fi</option>
-                                <option value="Installation & mise en place" @selected(old('subject', $preselectedSubject) === 'Installation & mise en place')>Installation &amp; mise en place</option>
-                                <option value="Contrat de maintenance" @selected(old('subject', $preselectedSubject) === 'Contrat de maintenance')>Contrat de maintenance</option>
-                                <option value="Sauvegarde & sécurité" @selected(old('subject', $preselectedSubject) === 'Sauvegarde & sécurité')>Sauvegarde &amp; sécurité</option>
-                                <option value="Support & accompagnement" @selected(old('subject', $preselectedSubject) === 'Support & accompagnement')>Support &amp; accompagnement</option>
-                                <option value="Autre demande" @selected(old('subject', $preselectedSubject) === 'Autre demande')>Autre demande</option>
+                            <select id="subject" name="subject" required x-model="subject" class="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+                                <option value="Dépannage matériel">Dépannage matériel</option>
+                                <option value="Problème de réseau / Wi-Fi">Problème de réseau / Wi-Fi</option>
+                                <option value="Installation & mise en place">Installation &amp; mise en place</option>
+                                <option value="Contrat de maintenance">Contrat de maintenance</option>
+                                <option value="Sauvegarde & sécurité">Sauvegarde &amp; sécurité</option>
+                                <option value="Support & accompagnement">Support &amp; accompagnement</option>
+                                <option value="Autre demande">Autre demande</option>
                             </select>
                             @error('subject')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        {{-- Champs personnalisés selon le service sélectionné --}}
+                        @foreach ($services as $svc)
+                            @php $fields = config('service-form-fields.'.$svc['slug'], []); @endphp
+                            @if ($fields)
+                                <fieldset
+                                    x-show="service === '{{ $svc['slug'] }}'"
+                                    x-cloak
+                                    :disabled="service !== '{{ $svc['slug'] }}'"
+                                    class="space-y-4 rounded-2xl border border-flow-100 bg-flow-50/50 p-5"
+                                >
+                                    <legend class="px-2 text-sm font-semibold text-flow-800">
+                                        Précisions — {{ $svc['name'] }}
+                                    </legend>
+                                    <div class="grid gap-5 sm:grid-cols-2">
+                                        @foreach ($fields as $field)
+                                            @php
+                                                $full = ($field['column'] ?? 'half') === 'full';
+                                                $required = (bool) ($field['required'] ?? false);
+                                                $errorKey = 'form_data.'.$field['name'];
+                                            @endphp
+                                            <div @class(['sm:col-span-2' => $full, 'sm:col-span-1' => ! $full])>
+                                                <label for="form_data_{{ $field['name'] }}" class="mb-1.5 block text-sm font-medium text-zinc-700">
+                                                    {{ $field['label'] }}
+                                                    @if (! $required)
+                                                        <span class="font-normal text-zinc-400">(optionnel)</span>
+                                                    @endif
+                                                </label>
+
+                                                @switch($field['type'])
+                                                    @case('select')
+                                                        <select id="form_data_{{ $field['name'] }}" name="form_data[{{ $field['name'] }}]" @required($required) :required="service === '{{ $svc['slug'] }}'" class="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+                                                            <option value="" hidden></option>
+                                                            @foreach ($field['options'] as $optionValue => $optionLabel)
+                                                                <option value="{{ $optionValue }}" @selected(old('form_data.'.$field['name']) === $optionValue)>{{ $optionLabel }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @break
+
+                                                    @case('textarea')
+                                                        <textarea id="form_data_{{ $field['name'] }}" name="form_data[{{ $field['name'] }}]" rows="3" placeholder="{{ $field['placeholder'] ?? '' }}" @required($required) :required="service === '{{ $svc['slug'] }}'" class="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm placeholder-zinc-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">{{ old('form_data.'.$field['name']) }}</textarea>
+                                                        @break
+
+                                                    @default
+                                                        <input id="form_data_{{ $field['name'] }}" name="form_data[{{ $field['name'] }}]" type="{{ $field['type'] === 'number' ? 'number' : 'text' }}" @if ($field['type'] === 'number') min="1" step="1" inputmode="numeric" @endif placeholder="{{ $field['placeholder'] ?? '' }}" value="{{ old('form_data.'.$field['name']) }}" @required($required) :required="service === '{{ $svc['slug'] }}'" class="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm placeholder-zinc-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                                                @endswitch
+
+                                                @error($errorKey)
+                                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </fieldset>
+                            @endif
+                        @endforeach
 
                         <div>
                             <label for="message" class="mb-1.5 block text-sm font-medium text-zinc-700">{{ __('Décrivez votre besoin') }}</label>

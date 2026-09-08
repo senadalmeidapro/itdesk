@@ -30,6 +30,7 @@ class ContactMessage extends Model
         'service_slug',
         'subject',
         'message',
+        'form_data',
         'is_read',
         'status',
         'converted_ticket_id',
@@ -39,6 +40,7 @@ class ContactMessage extends Model
 
     protected $casts = [
         'is_read' => 'boolean',
+        'form_data' => 'array',
         'contacted_at' => 'datetime',
         'converted_at' => 'datetime',
     ];
@@ -52,6 +54,35 @@ class ContactMessage extends Model
     {
         return collect(config('public-services.services'))
             ->firstWhere('slug', $this->service_slug)['name'] ?? null;
+    }
+
+    public function formSchema(): array
+    {
+        return (array) config('service-form-fields.'.$this->service_slug, []);
+    }
+
+    /**
+     * Réponses du formulaire personnalisé, prêtes à l'affichage
+     * (valeur des select résolue en libellé).
+     *
+     * @return array<string, string> label => valeur
+     */
+    public function formAnswers(): array
+    {
+        $answers = [];
+
+        foreach ($this->formSchema() as $field) {
+            $value = $this->form_data[$field['name']] ?? null;
+            if ($value === null || $value === '') {
+                continue;
+            }
+            if (($field['type'] ?? null) === 'select') {
+                $value = $field['options'][$value] ?? $value;
+            }
+            $answers[$field['label']] = (string) $value;
+        }
+
+        return $answers;
     }
 
     public function markContacted(): void

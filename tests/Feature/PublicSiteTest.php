@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ContactMessage;
 use App\Models\User;
 use App\Notifications\NewContactMessageNotification;
 use Database\Seeders\PermissionsSeeder;
@@ -112,6 +113,12 @@ class PublicSiteTest extends TestCase
             'service_slug' => 'reseaux-connectivite',
             'subject' => 'Problème de réseau / Wi-Fi',
             'message' => 'Le Wi-Fi ne couvre pas le fond de la maison, la box doit probablement être déplacée.',
+            'form_data' => [
+                'location' => 'maison',
+                'user_count' => 6,
+                'current_setup' => 'box_fai',
+                'wifi_issue' => 'couverture',
+            ],
         ]);
 
         $response->assertRedirect();
@@ -122,6 +129,80 @@ class PublicSiteTest extends TestCase
             'status' => 'new',
             'is_read' => false,
         ]);
+
+        $message = ContactMessage::where('email', 'marie@example.com')->firstOrFail();
+        $this->assertSame('maison', $message->form_data['location']);
+        $this->assertSame('box_fai', $message->form_data['current_setup']);
+    }
+
+    public function test_contact_form_stores_custom_form_answers_by_service(): void
+    {
+        Notification::fake();
+
+        $response = $this->post('/contact', [
+            'name' => 'Paul Petit',
+            'email' => 'paul@example.com',
+            'audience' => 'entreprise',
+            'service_slug' => 'maintenance-depannage',
+            'subject' => 'Dépannage matériel',
+            'message' => 'Un de nos postes de caisse ne démarre plus depuis ce matin.',
+            'form_data' => [
+                'equipment_type' => 'poste',
+                'equipment_count' => 1,
+                'intervention_mode' => 'sur_place',
+                'urgency' => 'urgente',
+            ],
+        ]);
+
+        $response->assertRedirect();
+
+        $message = ContactMessage::where('email', 'paul@example.com')->firstOrFail();
+        $this->assertSame([
+            'equipment_type' => 'poste',
+            'equipment_count' => 1,
+            'intervention_mode' => 'sur_place',
+            'urgency' => 'urgente',
+        ], $message->form_data);
+    }
+
+    public function test_contact_form_rejects_unknown_form_field(): void
+    {
+        Notification::fake();
+
+        $this->post('/contact', [
+            'name' => 'Julie Rose',
+            'email' => 'julie@example.com',
+            'audience' => 'particulier',
+            'service_slug' => 'maintenance-depannage',
+            'subject' => 'Dépannage matériel',
+            'message' => 'Mon poste est lent et je souhaite une intervention.',
+            'form_data' => [
+                'equipment_type' => 'portable',
+                'equipment_count' => 1,
+                'intervention_mode' => 'sur_place',
+                'urgency' => 'normale',
+                'hacker_field' => 'injecté',
+            ],
+        ])->assertRedirect();
+
+        $message = ContactMessage::where('email', 'julie@example.com')->firstOrFail();
+        $this->assertArrayNotHasKey('hacker_field', $message->form_data);
+    }
+
+    public function test_contact_form_requires_service_specific_fields(): void
+    {
+        Notification::fake();
+
+        $this->post('/contact', [
+            'name' => 'Sonia Durand',
+            'email' => 'sonia@example.com',
+            'audience' => 'particulier',
+            'service_slug' => 'maintenance-depannage',
+            'subject' => 'Dépannage matériel',
+            'message' => 'Il manque des précisions sur mon équipement.',
+        ])->assertSessionHasErrors(['form_data.equipment_type']);
+
+        $this->assertDatabaseMissing('contact_messages', ['email' => 'sonia@example.com']);
     }
 
     public function test_contact_form_validation(): void

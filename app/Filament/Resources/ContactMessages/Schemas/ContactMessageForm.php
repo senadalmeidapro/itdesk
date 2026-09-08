@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ContactMessageForm
@@ -56,6 +57,34 @@ class ContactMessageForm
                 Toggle::make('is_read')
                     ->label('Lu')
                     ->default(false),
+                Section::make('Réponses au formulaire de service')
+                    ->description('Champs personnalisés renseignés par le visiteur selon le service sélectionné.')
+                    ->schema(fn (ContactMessage $record): array => self::serviceAnswers($record))
+                    ->visible(fn (ContactMessage $record): bool => filled($record->form_data))
+                    ->columns(2)
+                    ->columnSpanFull(),
             ]);
+    }
+
+    private static function serviceAnswers(ContactMessage $record): array
+    {
+        $fields = [];
+
+        foreach ($record->formSchema() as $field) {
+            $value = $record->form_data[$field['name']] ?? null;
+            if ($value === null || $value === '') {
+                continue;
+            }
+            if (($field['type'] ?? null) === 'select') {
+                $value = $field['options'][$value] ?? $value;
+            }
+            $fields[] = TextInput::make("form_data.{$field['name']}")
+                ->label($field['label'])
+                ->default((string) $value)
+                ->disabled()
+                ->dehydrated(false);
+        }
+
+        return $fields;
     }
 }
